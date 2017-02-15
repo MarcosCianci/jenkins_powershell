@@ -24,7 +24,7 @@ $table.columns.add($col6)
 $SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
-param($result)
+
 
 foreach( $allservers in $servers ) {
 
@@ -76,6 +76,6 @@ foreach( $allservers in $servers ) {
  
 }  
 
-$result = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String | Export-Clixml .\RelJobfullBackupWindows.xml
+$result = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String
 
-Write-Host $result
+Write-Output $result
