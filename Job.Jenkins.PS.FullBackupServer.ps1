@@ -2,9 +2,23 @@ Import-Module activedirectory
 
 $days = "-1"
 $date = Get-Date -format D
-$servers = "sb-dc01","sb-dc02","s4b-wsus"
-$id = "4","5","7"
-$ErrorActionPreference = 'Stop'
+$servers = "sb-dc01","sb-dc02","s4b-wsus","s4b-acesso","s4b-bi"
+$allid = "4","5","6"
+
+
+$table = New-Object system.Data.DataTable "TableSample"
+$col1 = New-Object system.Data.DataColumn LogName ,([string])
+$col2 = New-Object system.Data.DataColumn EventID ,([string])
+$col3 = New-Object system.Data.DataColumn Server ,([string])
+$col4 = New-Object system.Data.DataColumn Message ,([string])
+$col5 = New-Object system.Data.DataColumn TimeCreated ,([string])
+$col6 = New-Object system.Data.DataColumn Level ,([string])
+$table.columns.add($col1)
+$table.columns.add($col2)
+$table.columns.add($col3)
+$table.columns.add($col4)
+$table.columns.add($col5)
+$table.columns.add($col6)
 
 
 $SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
@@ -13,35 +27,53 @@ $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUse
 foreach( $allservers in $servers ) {
 
 	invoke-command -Computername $allservers -Credential $Credential -scriptblock { 
+    
+        foreach ( $allid in $id ) {
 
-		foreach ( $allid in $id ) {
-			$EventLog = Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="$allid"; StartTime=(get-date).addDays($days)} -computerName $allservers
+			$EventLog = Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="$allid"; StartTime=(get-date).addDays($days)} -Computername $allservers
 					
-				switch -regex ($EventLog.id) {
+                $row = $table.NewRow();
+                $row.LogName = "Microsft-Windows-Backup"; 
+		        $row.Server = $allservers;
+                $row.Level = "Success";
+		        $row.TimeCreated = [string]$Eventlog.TimeCreated;
 		
+				switch -regex ($EventLog.id) {
+		                                                   
 					"[4]" {  
-								$log = $EventLog 
-								break;
+                  
+                        $row.EventID = [string]$EventLog.id;
+                        $row.Message = [string]$Eventlog.Message;
+		          	    
+						break;
 					} 
 		
 					"[5]"{  
-					
-						$log = $EventLog
+				
+                    	$row.EventID = [string]$EventLog.id;
+		       			$row.Message = [string]$Eventlog.Message;
 						break;
 					}
 				
 					"[7]"{  
-					
-						$log = $EventLog
+				
+                        $row.EventID = [string]$EventLog.id;
+		       		    $row.Message = [string]$Eventlog.Message;
 						break;
 					}
+
 				}
-		}
+                $table.Rows.Add($row)
+
+		    }
+
 	 	
     	} 
    
 
-write-output $EventLog   
+ 
 }  
 
+$result = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String | Export-Clixml .\RelJobfullBackupWindows.xml
 
+Write-Host $result
