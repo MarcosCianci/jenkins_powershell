@@ -2,7 +2,7 @@ Import-Module activedirectory
 
 $days = "-1"
 $date = Get-Date -format D
-$servers = "sb-dc01","sb-dc02","s4b-wsus","s4b-acesso","s4b-bi"
+$servers = "sb-dc01","sb-dc02","s4b-wsus"
 $allid = "4","5","6"
 
 
