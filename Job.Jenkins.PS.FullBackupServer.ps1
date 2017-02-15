@@ -24,6 +24,8 @@ $table.columns.add($col6)
 $SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
+param($result)
+
 foreach( $allservers in $servers ) {
 
 	invoke-command -Computername $allservers -Credential $Credential -scriptblock { 
