@@ -90,5 +90,7 @@ foreach( $allservers in $servers ) {
 }  
 
 $report = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String
+$mailTO = "marcos.cianci@s4bdigital.net"
+
 
 EnviaEmailUser -Destino $emailTo -Mensagem $report -Assunto "Report - Backup Full Windows Servers - SBD.CORP"
