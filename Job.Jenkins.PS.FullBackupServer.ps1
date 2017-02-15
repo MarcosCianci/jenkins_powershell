@@ -21,6 +21,19 @@ $table.columns.add($col5)
 $table.columns.add($col6)
 
 
+function EnviaEmailUser ($destino,$mensagem,$assunto) 
+{
+$email = New-Object System.Net.Mail.MailMessage("infra@s4bdigital.net",$destino)
+$smtp = New-Object Net.Mail.SmtpClient("mail.s4bdigital.net","25")
+$email.Subject = $assunto
+$email.Body = $mensagem
+$email.Priority = 2
+$email.IsBodyHtml = $True
+$smtp.Send($email)
+}
+
+
+
 $SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
@@ -76,6 +89,6 @@ foreach( $allservers in $servers ) {
  
 }  
 
-$result = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String
+$report = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String
 
-Write-Output $result
+EnviaEmailUser -Destino $emailTo -Mensagem $report -Assunto "Report - Backup Full Windows Servers - SBD.CORP"
