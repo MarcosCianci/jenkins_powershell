@@ -51,7 +51,7 @@ $table.columns.add($col3)
     $W32TM = w32tm /query /computer:$server /Status
     
     $row=$table.NewRow()
-    $row.Server= "$env:server"
+    $row.Server= "$server"
 	
     $RootD = $W32TM |Where-Object { $_.Contains("Root Dispersion")}
     $RootDispersion = $RootD -replace "Root Dispersion:"
@@ -59,7 +59,7 @@ $table.columns.add($col3)
     $row.RootDispersion = [string]"$RootDispersion"
            
 
-         if ( Test-Connection -cn $env:server -Count 1 -ErrorAction SilentlyContinue ){
+         if ( Test-Connection -cn $server -Count 1 -ErrorAction SilentlyContinue ){
 
                 if ( $RootDispersion -ge "1.0"){
                     
