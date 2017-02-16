@@ -39,21 +39,11 @@ $table.columns.add($col1)
 $table.columns.add($col2)
 $table.columns.add($col3)
 
-### CREDENCIAIS ###
-$SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
-
-
-
 ### START ###
 foreach ( $allserver in $Server ){
 
- Invoke-Command -ComputerName $allserver -ScriptBlock {
-
-    $ErrorActionPreference = 'Stop'
-
-    $W32TM = w32tm /query /computer:$allserver /Status
     
+    $W32TM = w32tm /query /computer:$allserver /Status
     $row=$table.NewRow()
     $row.Server= "$allserver"
 	
@@ -63,31 +53,32 @@ foreach ( $allserver in $Server ){
     $row.RootDispersion = [string]"$RootDispersion"
            
 
-         if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
+        if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
 
                 if ( $RootDispersion -ge "1.0"){
                     
 
-                    w32tm /resync /computer:$allserver /force 
-                    $row.Status = "Resync Success" 
+                   w32tm /resync /computer:$allserver /force 
+                   $row.Status = "Resync Success" 
 
-                    }
+                     }
                 else{   
                     echo ""
                     $row.RootDispersion = [string]"$RootDispersion"
-                    $row.Status = "Time Ok"
-                    }
+                   $row.Status = "Time Ok"
+                   }
        
  
            $table.Rows.Add($row)
     
             } 
-  } -Credential $credential
-
+   
+  
+   
 }
 
 $log = $table |Select-Object Server,RootDispersion,Status | Sort-Object Server |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Relatório - W32TM Domain Controller</h4>" | Out-String
-$report = ConvertTo-Html -CSSUri $css -Title "Domain Controller - W32TM Resync" -head "<img src=$img align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3>" -body "$log"  | Out-String
+$report = ConvertTo-Html -CSSUri $css -Title "Domain Controller - W32TM Resync" -head "<img src="$img" align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3>" -body "$log"  | Out-String
 $report | Out-File $outfile | Out-String
 
 ### FINISH ###
