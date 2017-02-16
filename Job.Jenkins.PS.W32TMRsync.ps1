@@ -23,7 +23,7 @@
 
 ### VARIÁVEIS ###
 $outfile = "e:\usr\util\scripts\logs\Rel_Test_w32TMResync.html"
-$img = "e:\img\s4bdigital.jpg"
+$img = ".\img\s4bdigital.jpg"
 $date = Get-Date -Format g
 $css = "e:\usr\util\scripts\HtmlReports.css"
 $Server = "sb-dc01","sb-dc02"
