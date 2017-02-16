@@ -50,7 +50,7 @@ $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUse
 
 foreach ( $allserver in $Server ){
 
- invoke-command -Computername $allservers -Credential $Credential -scriptblock { 
+ invoke-command -Computername $allserver -Credential $Credential -scriptblock { 
     
     $W32TM = w32tm /query /computer:$allserver /Status
     
