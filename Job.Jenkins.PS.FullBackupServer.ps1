@@ -3,7 +3,7 @@ Import-Module activedirectory
 $days = "-1"
 $date = Get-Date -format D
 $servers = "sb-dc01","sb-dc02","s4b-wsus"
-$allid = "4","5","6"
+$id = "4","5","7"
 $outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
 $img = "e:\img\s4bdigital.jpg"
 $css = "e:\usr\util\scripts\HtmlReports.css"
@@ -40,8 +40,7 @@ foreach( $allservers in $servers ) {
                 $row = $table.NewRow();
                 $row.LogName = "Microsft-Windows-Backup"; 
 		        $row.Server = $allservers;
-                $row.Level = "Success";
-		        $row.TimeCreated = [string]$Eventlog.TimeCreated;
+                $row.TimeCreated = [string]$Eventlog.TimeCreated;
 		
 				switch -regex ($EventLog.id) {
 		                                                   
@@ -49,6 +48,7 @@ foreach( $allservers in $servers ) {
                   
                         $row.EventID = [string]$EventLog.id;
                         $row.Message = [string]$Eventlog.Message;
+                        $row.Level = "Success";
 		          	    
 						break;
 					} 
@@ -57,6 +57,7 @@ foreach( $allservers in $servers ) {
 				
                     	$row.EventID = [string]$EventLog.id;
 		       			$row.Message = [string]$Eventlog.Message;
+                        $row.Level = "Error"; 
 						break;
 					}
 				
@@ -64,10 +65,11 @@ foreach( $allservers in $servers ) {
 				
                         $row.EventID = [string]$EventLog.id;
 		       		    $row.Message = [string]$Eventlog.Message;
+                        $row.Level = "Warning";
 						break;
 					}
 
-				}
+				 }
                 $table.Rows.Add($row)
 
 		    }
