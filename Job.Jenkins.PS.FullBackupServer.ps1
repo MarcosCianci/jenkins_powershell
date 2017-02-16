@@ -4,7 +4,9 @@ $days = "-1"
 $date = Get-Date -format D
 $servers = "sb-dc01","sb-dc02","s4b-wsus"
 $allid = "4","5","6"
-
+$outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
+$img = "e:\img\s4bdigital.jpg"
+$css = "e:\usr\util\scripts\HtmlReports.css"
 
 $table = New-Object system.Data.DataTable "TableSample"
 $col1 = New-Object system.Data.DataColumn LogName ,([string])
@@ -77,6 +79,8 @@ foreach( $allservers in $servers ) {
  
 }  
 
-$report = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |Format-Table | Out-String
+$log = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Report Backup Full - Windows Servers</h4>" | Out-String 
 
-Write-Host $report
+$report = ConvertTo-Html -CSSUri $css -Title "Report Backup Full - Windows Servers" -head "<img src=$img align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3> Servidor: SB-DC01" -body "$log" |Out-String
+$report | Out-File $outfile | Out-String
+
