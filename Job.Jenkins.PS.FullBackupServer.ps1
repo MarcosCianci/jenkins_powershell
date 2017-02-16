@@ -1,13 +1,40 @@
+###########################################################
+# PowerShell Windows 
+# Script: Job.Jenkins.PS.FullBackupServer.ps1
+#
+# Autor: Marcos Cianci
+# Data: 22/01/2013
+#
+# Atualizações:
+#               06/04/2015 - Marcos Cianci
+#               16/02/2017 - Marcos Cianci   
+#    
+#
+# Versão 1.0:  Script verifica a execução do bkp 
+#				do Windows Server 2012 R2.	
+#
+# Versão 2.0 : Script verifica nos logs dos servidores:
+#              sb-dc01, sb-dc02,s4b-wsus,s4b-bi o status      
+#              dos backups realizados nos servidores,
+#              envia por email relatorio gerado em HTML.
+#
+# Versão 3.0: Script integrado ao Jenkins
+#
+###########################################################
+
+### MODULOS ###
 Import-Module activedirectory
 
+### VARIÁVEIS ###
 $days = "-1"
 $date = Get-Date -format D
-$servers = "sb-dc01","sb-dc02","s4b-wsus"
+$servers = "sb-dc01","sb-dc02","s4b-wsus","s4b-acesso","s4b-bi"
 $id = "4","5","7"
 $outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
-$img = "e:\img\s4bdigital.jpg"
+$img = "\\sb-dc01\img\s4bdigital.jpg"
 $css = "e:\usr\util\scripts\HtmlReports.css"
 
+### TABELA ###
 $table = New-Object system.Data.DataTable "TableSample"
 $col1 = New-Object system.Data.DataColumn LogName ,([string])
 $col2 = New-Object system.Data.DataColumn EventID ,([string])
@@ -22,12 +49,11 @@ $table.columns.add($col4)
 $table.columns.add($col5)
 $table.columns.add($col6)
 
-
-
+### CREDENCIAIS WINDOWS ###
 $SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
-
+### STARTING ###
 
 foreach( $allservers in $servers ) {
 
@@ -86,3 +112,4 @@ $log = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |C
 $report = ConvertTo-Html -CSSUri $css -Title "Report Backup Full - Windows Servers" -head "<img src=$img align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3> Servidor: SB-DC01" -body "$log" |Out-String
 $report | Out-File $outfile | Out-String
 
+### FINISH ###
