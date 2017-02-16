@@ -23,7 +23,7 @@
 
 ### VARIÁVEIS ###
 $outfile = "e:\usr\util\scripts\logs\Rel_Test_w32TMResync.html"
-$img = "\\sb-dc01\img\s4bdigital.jpg"
+$img = "e:\img\s4bdigital.jpg"
 $date = Get-Date -Format g
 $css = "e:\usr\util\scripts\HtmlReports.css"
 $Server = "sb-dc01","sb-dc02"
@@ -78,7 +78,7 @@ foreach ( $allserver in $Server ){
 }
 
 $log = $table |Select-Object Server,RootDispersion,Status | Sort-Object Server |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Relatório - W32TM Domain Controller</h4>" | Out-String
-$report = ConvertTo-Html -CSSUri $css -Title "Domain Controller - W32TM Resync" -head "<img src=e:\img\s4bdigital.jpg align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3>" -body "$log"  | Out-String
+$report = ConvertTo-Html -CSSUri $css -Title "Domain Controller - W32TM Resync" -head "<img src=$img align=right border=3 /> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3>" -body "$log"  | Out-String
 $report | Out-File $outfile | Out-String
 
 ### FINISH ###
