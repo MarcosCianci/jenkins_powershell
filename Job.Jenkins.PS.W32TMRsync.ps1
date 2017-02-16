@@ -46,11 +46,12 @@ $table.columns.add($col3)
 #foreach ( $allserver in $Server ){
 
  
-    
+    $ErrorActionPreference = 'Stop'
+
     $W32TM = w32tm /query /computer:$server /Status
     
     $row=$table.NewRow()
-    $row.Server= "$server"
+    $row.Server= "$env:server"
 	
     $RootD = $W32TM |Where-Object { $_.Contains("Root Dispersion")}
     $RootDispersion = $RootD -replace "Root Dispersion:"
@@ -58,12 +59,12 @@ $table.columns.add($col3)
     $row.RootDispersion = [string]"$RootDispersion"
            
 
-         if ( Test-Connection -cn $server -Count 1 -ErrorAction SilentlyContinue ){
+         if ( Test-Connection -cn $env:server -Count 1 -ErrorAction SilentlyContinue ){
 
                 if ( $RootDispersion -ge "1.0"){
                     
 
-                    w32tm /resync /computer:$server /force 
+                    w32tm /resync /computer:$env:server /force 
                     $row.Status = "Resync Success" 
 
                     }
