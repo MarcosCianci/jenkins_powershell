@@ -26,7 +26,7 @@ $outfile = "e:\usr\util\scripts\logs\Rel_Test_w32TMResync.html"
 $img = "\\sb-dc01\img\s4bdigital.jpg"
 $date = Get-Date -Format g
 $css = "e:\usr\util\scripts\HtmlReports.css"
-$Server = "sb-dc01","sb-dc02"
+$Server = $env:COMPUTERNAME
 
 
 ### TABELAS ###
@@ -40,22 +40,17 @@ $table.columns.add($col2)
 $table.columns.add($col3)
 
 
-### CREDENCIAIS WINDOWS ###
-#$SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
-#$Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
-
-
 ### START ###
 
 
-foreach ( $allserver in $Server ){
+#foreach ( $allserver in $Server ){
 
  
     
-    $W32TM = w32tm /query /computer:$allserver /Status
+    $W32TM = w32tm /query /computer:$server /Status
     
     $row=$table.NewRow()
-    $row.Server= "$allserver"
+    $row.Server= "$server"
 	
     $RootD = $W32TM |Where-Object { $_.Contains("Root Dispersion")}
     $RootDispersion = $RootD -replace "Root Dispersion:"
@@ -63,12 +58,12 @@ foreach ( $allserver in $Server ){
     $row.RootDispersion = [string]"$RootDispersion"
            
 
-         if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
+         if ( Test-Connection -cn $server -Count 1 -ErrorAction SilentlyContinue ){
 
                 if ( $RootDispersion -ge "1.0"){
                     
 
-                    w32tm /resync /computer:$allserver /force 
+                    w32tm /resync /computer:$server /force 
                     $row.Status = "Resync Success" 
 
                     }
@@ -79,13 +74,11 @@ foreach ( $allserver in $Server ){
                     }
        
  
-    $table.Rows.Add($row)
+           $table.Rows.Add($row)
     
-   } 
+            } 
 
-
-  
-}
+#}
 
 $log = $table |Select-Object Server,RootDispersion,Status | Sort-Object Server |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Relatório - W32TM Domain Controller</h4>" | Out-String
 $report = ConvertTo-Html -CSSUri $css -Title "Domain Controller - W32TM Resync" -head "<img src=$img align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3>" -body "$log"  | Out-String
