@@ -60,12 +60,13 @@ foreach ( $allserver in $Server ){
     $RootD = $W32TM |Where-Object { $_.Contains("Root Dispersion")}
     $RootDispersion = $RootD -replace "Root Dispersion:"
 
+    $row.RootDispersion = [string]"$RootDispersion"
+           
+
     if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
 
         if ( $RootDispersion -ge "1.0"){
-
-            $row.RootDispersion = [string]"$RootDispersion"
-            $label=$true
+                    
 
             w32tm /resync /computer:$allserver /force 
             $row.Status = "Resync Success" 
