@@ -41,8 +41,8 @@ $table.columns.add($col3)
 
 
 ### CREDENCIAIS WINDOWS ###
-$SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
+#$SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
+#$Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
 
 ### START ###
@@ -50,7 +50,7 @@ $Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUse
 
 foreach ( $allserver in $Server ){
 
- invoke-command -Computername $allserver -Credential $Credential -scriptblock { 
+ 
     
     $W32TM = w32tm /query /computer:$allserver /Status
     
@@ -63,26 +63,28 @@ foreach ( $allserver in $Server ){
     $row.RootDispersion = [string]"$RootDispersion"
            
 
-    if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
+         if ( Test-Connection -cn $allserver -Count 1 -ErrorAction SilentlyContinue ){
 
-        if ( $RootDispersion -ge "1.0"){
+                if ( $RootDispersion -ge "1.0"){
                     
 
-            w32tm /resync /computer:$allserver /force 
-            $row.Status = "Resync Success" 
+                    w32tm /resync /computer:$allserver /force 
+                    $row.Status = "Resync Success" 
 
-            }
-        else{   echo ""
-                $row.RootDispersion = [string]"$RootDispersion"
-                $row.Status = "Time Ok"
-            }
+                    }
+                else{   
+                    echo ""
+                    $row.RootDispersion = [string]"$RootDispersion"
+                    $row.Status = "Time Ok"
+                    }
        
  
     $table.Rows.Add($row)
     
-   }
+   } 
 
-  }
+
+  
 }
 
 $log = $table |Select-Object Server,RootDispersion,Status | Sort-Object Server |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Relatório - W32TM Domain Controller</h4>" | Out-String
