@@ -1,0 +1,37 @@
+table
+{
+Margin: auto;
+width:98;
+Border: 1px solid rgb(190, 190, 190);
+Font-Family: Tahoma;
+Font-Size: 10pt;
+Background-Color: rgb(252, 252, 252);
+}
+
+
+Body
+{
+background-color:white; Text-align:Center;
+}
+
+tr:hover td
+{
+Background-Color: rgb(150, 150, 220);
+Color: rgb(255, 255, 255);
+}
+
+tr:nth-child(even)
+{
+Background-Color: rgb(242, 242, 242);
+}
+th
+{
+Text-Align: Center;
+Color: rgb(150, 150, 220);
+Padding: 1px 4px 1px 4px;
+}
+td
+{
+Vertical-Align: Top;
+Padding: 1px 4px 1px 4px;
+}
