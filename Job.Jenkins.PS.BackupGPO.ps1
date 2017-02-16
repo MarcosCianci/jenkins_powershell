@@ -31,7 +31,7 @@ $date_del = (Get-Date) - (New-TimeSpan -day 5)
 ### STARTING ###
 
 $bkp_gpo = Get-GPO -all | Backup-GPO -path $bkp_dir |ConvertTo-Html -Fragment -As Table -PreContent "<h2>Relatório</h2>" | Out-String
-$report = ConvertTo-Html -CSSUri $css -Title "GPO´s Backup - Active Direcotry" -head "<img src=$img align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3> Servidor: SB-DC01" -body "$bkp_gpo" 
+$report = ConvertTo-Html -CSSUri $css -Title "GPO´s Backup - Active Direcotry" -head "<img src=\\sb-dc01\img\s4bdigital.jpg align=middle> <H2>Depart. InfraEstrutura e Suporte</H2> <h3>Data:$date</h3> Servidor: SB-DC01" -body "$bkp_gpo" 
 $report | Out-File $outfile | Out-String
 
 ### FINISH ###
