@@ -23,9 +23,9 @@
 
 ### VARIÁVEIS ###
 $outfile = "e:\usr\util\scripts\logs\Rel_Test_w32TMResync.html"
-$img = "E:\Jenkins_PowerShell\img\s4bdigital.jpg"
+$img = "\\sb-dc01\img\s4bdigital.jpg"
 $date = Get-Date -Format g
-$css = "E:\Jenkins_PowerShell\css\HtmlReports.css"
+$css = "E:\usr\util\scripts\HtmlReports.css"
 $Server = "sb-dc01","sb-dc02"
 
 
