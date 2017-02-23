@@ -44,8 +44,8 @@ $table.columns.add($col3)
 
 foreach ( $allserver in $Server ){
 
-    
-    $W32TM = w32tm /query /computer:$allserver /Status
+   
+    $W32TM = Invoke-Command -ComputerName $allserver -ScriptBlock { w32tm /query /status } 
     $row=$table.NewRow()
     $row.Server= "$allserver"
 	
@@ -60,7 +60,7 @@ foreach ( $allserver in $Server ){
                 if ( $RootDispersion -ge "1.0"){
                     
 
-                   w32tm /resync /computer:$allserver /force 
+                   Invoke-Command -Computername $allserver -Scriptblock { w32tm /resync /force }
                    $row.Status = "Resync Success" 
 
                      }
