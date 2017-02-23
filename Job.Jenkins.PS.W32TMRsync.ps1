@@ -28,6 +28,9 @@ $date = Get-Date -Format g
 $css = "E:\usr\util\scripts\HtmlReports.css"
 $Server = "sb-dc01","sb-dc02"
 
+$securepassword = ConvertTo-SecureString -String $SrvPassword -AsPlainText -Force 
+$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $SrvUser, $securepassword 
+
 
 ### TABELAS ###
 $tabName= "SampleTable"
@@ -45,7 +48,7 @@ $table.columns.add($col3)
 foreach ( $allserver in $Server ){
 
    
-    $W32TM = Invoke-Command -ComputerName $allserver -ScriptBlock { w32tm /query /status } 
+    $W32TM = Invoke-Command -ComputerName $allserver -ScriptBlock { w32tm /query /status } -Credential $cred
     $row=$table.NewRow()
     $row.Server= "$allserver"
 	
@@ -60,7 +63,7 @@ foreach ( $allserver in $Server ){
                 if ( $RootDispersion -ge "1.0"){
                     
 
-                   Invoke-Command -Computername $allserver -Scriptblock { w32tm /resync /force }
+                   Invoke-Command -Computername $allserver -Scriptblock { w32tm /resync /force } -Credential $cred
                    $row.Status = "Resync Success" 
 
                      }
