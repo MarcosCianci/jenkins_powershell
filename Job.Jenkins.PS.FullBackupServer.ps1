@@ -31,10 +31,12 @@ $date = Get-Date -format D
 $servers = "sb-dc01","sb-dc02","s4b-wsus","s4b-acesso","s4b-bi"
 
 $outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
-$img = "\\sb-dc01\img\s4bdigital.jpg"
+$img = "e:\img\s4bdigital.jpg"
 $css = "e:\usr\util\scripts\HtmlReports.css"
 
 ### CREDENCIAIS WINDOWS ###
+
+
 $securepassword = ConvertTo-SecureString -String $env:SrvPassword -AsPlainText -Force 
 $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:SrvUser, $securepassword 
 
@@ -60,47 +62,46 @@ $table.columns.add($col6)
 foreach( $allservers in $servers ) {
 
 	    
-     $EventLog_success = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="4"; StartTime=(get-date).addDays($days)}} -Credential $cred
-	 $EventLog_success|foreach {
-            
-            $row = $table.NewRow();
-            $row.LogName = "Microsof-Windows-Backup"
-            $row.EventID = [string] $EventLog_success.id;
-            $row.Server = $allservers
-            $row.Message = [string]$EventLog_success.Message;
-            $row.Level = "Success";
-            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
-            $table.Rowns.Add($row) 
-        
-        }
+     $EventLog_success = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{logname="Microsoft-Windows-Backup"; id="4"; StartTime=(get-date).addDays(-1)}} -Credential $cred
+	 
+     $EventLog_success | foreach {   
+                $row = $table.NewRow();
+                $row.LogName = "Microsof-Windows-Backup"
+                $row.EventID = [string] $EventLog_success.id;
+                $row.Server = [string] $EventLog_success.PSComputerName;
+                $row.Message = [string]$EventLog_success.Message;
+                $row.Level = "Success";
+                $row.TimeCreated = [string]$EventLog_success.TimeCreated;
+                $table.Rows.Add($row) 
+    }
 
-    $EventLog_error = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="5"; StartTime=(get-date).addDays($days)}} -Credential $cred
-	$EventLog_error|foreach {
-            
-            $row = $table.NewRow();
-            $row.LogName = "Microsof-Windows-Backup"
-            $row.EventID = [string] $EventLog_success.id;
-            $row.Server = $allservers
-            $row.Message = [string]$EventLog_success.Message;
-            $row.Level = "Error";
-            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
-            $table.Rowns.Add($row) 
-        
-        }
+    $EventLog_error = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="5"; StartTime=(get-date).addDays(-1)}} -Credential $cred
 
-    $EventLog_war = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="7"; StartTime=(get-date).addDays($days)}} -Credential $cred
-	 $EventLog_war|foreach {
-            
-            $row = $table.NewRow();
-            $row.LogName = "Microsof-Windows-Backup"
-            $row.EventID = [string] $EventLog_success.id;
-            $row.Server = $allservers
-            $row.Message = [string]$EventLog_success.Message;
-            $row.Level = "Warning";
-            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
-            $table.Rowns.Add($row) 
+	$EventLog_error | foreach {
+                $row = $table.NewRow();
+                $row.LogName = "Microsof-Windows-Backup"
+                $row.EventID = [string] $EventLog_error.id;
+                $row.Server = [string] $EventLog_error.PSComputerName; 
+                $row.Message = [string] $EventLog_error.Message;
+                $row.Level = "Error";
+                $row.TimeCreated = $EventLog_error.TimeCreated;
+                $table.Rows.Add($row) 
+   }
+           
+
+    $EventLog_war = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="7"; StartTime=(get-date).addDays(-1)}} -Credential $cred
+
+	$EventLog_war | foreach { 
+                $row = $table.NewRow();
+                $row.LogName = "Microsof-Windows-Backup"
+                $row.EventID = [string] $EventLog_war.id;
+                $row.Server = [string] $EventLog_error.PSComputerName;
+                $row.Message = [string]$EventLog_war.Message;
+                $row.Level = "Warning";
+                $row.TimeCreated = [string]$EventLog_war.TimeCreated;
+                $table.Rows.Add($row) 
         
-        }              
+   }
 		    
 }  
 
