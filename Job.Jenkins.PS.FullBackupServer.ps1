@@ -34,6 +34,11 @@ $outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
 $img = "\\sb-dc01\img\s4bdigital.jpg"
 $css = "e:\usr\util\scripts\HtmlReports.css"
 
+### CREDENCIAIS WINDOWS ###
+$securepassword = ConvertTo-SecureString -String $env:SrvPassword -AsPlainText -Force 
+$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:SrvUser, $securepassword 
+
+
 ### TABELA ###
 $table = New-Object system.Data.DataTable "TableSample"
 $col1 = New-Object system.Data.DataColumn LogName ,([string])
@@ -49,19 +54,15 @@ $table.columns.add($col4)
 $table.columns.add($col5)
 $table.columns.add($col6)
 
-### CREDENCIAIS WINDOWS ###
-$SrvPassword = ConvertTo-SecureString "$($ENV:SrvPassword)" -AsPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential ("$ENV:SrvUser", $SrvPassword)
 
 ### STARTING ###
 
 foreach( $allservers in $servers ) {
 
-	invoke-command -Computername $allservers -Credential $Credential -scriptblock { 
-    
+	    
         foreach ( $allid in $id ) {
 
-			$EventLog = Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="$allid"; StartTime=(get-date).addDays($days)} -Computername $allservers
+			$EventLog = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="$allid"; StartTime=(get-date).addDays($days)}} -Credential $cred
 					
                 $row = $table.NewRow();
                 $row.LogName = "Microsft-Windows-Backup"; 
@@ -98,13 +99,7 @@ foreach( $allservers in $servers ) {
 				 }
                 $table.Rows.Add($row)
 
-		    }
-
-	 	
-    	} 
-   
-
- 
+		    }   
 }  
 
 $log = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Report Backup Full - Windows Servers</h4>" | Out-String 
