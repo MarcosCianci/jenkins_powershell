@@ -28,8 +28,8 @@ $date = Get-Date -Format g
 $css = "E:\usr\util\scripts\HtmlReports.css"
 $Server = "sb-dc01","sb-dc02"
 
-$securepassword = ConvertTo-SecureString -String $SrvPassword -AsPlainText -Force 
-$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $SrvUser, $securepassword 
+$securepassword = ConvertTo-SecureString -String $env:SrvPassword -AsPlainText -Force 
+$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $env:SrvUser, $securepassword 
 
 
 ### TABELAS ###
