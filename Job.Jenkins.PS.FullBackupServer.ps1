@@ -29,7 +29,7 @@ Import-Module activedirectory
 $days = "-1"
 $date = Get-Date -format D
 $servers = "sb-dc01","sb-dc02","s4b-wsus","s4b-acesso","s4b-bi"
-$id = "4","5","7"
+
 $outfile = "e:\usr\util\scripts\logs\Rel_Bkp_SystemState_Servers.html"
 $img = "\\sb-dc01\img\s4bdigital.jpg"
 $css = "e:\usr\util\scripts\HtmlReports.css"
@@ -60,46 +60,48 @@ $table.columns.add($col6)
 foreach( $allservers in $servers ) {
 
 	    
-        foreach ( $allid in $id ) {
+     $EventLog_success = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="4"; StartTime=(get-date).addDays($days)}} -Credential $cred
+	 $EventLog_success|foreach {
+            
+            $row = $table.NewRow();
+            $row.LogName = "Microsof-Windows-Backup"
+            $row.EventID = [string] $EventLog_success.id;
+            $row.Server = $allservers
+            $row.Message = [string]$EventLog_success.Message;
+            $row.Level = "Success";
+            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
+            $table.Rowns.Add($row) 
+        
+        }
 
-			$EventLog = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="$allid"; StartTime=(get-date).addDays($days)}} -Credential $cred
-					
-                $row = $table.NewRow();
-                $row.LogName = "Microsft-Windows-Backup"; 
-		        $row.Server = $allservers;
-                $row.TimeCreated = [string]$Eventlog.TimeCreated;
-		
-				switch -regex ($EventLog.id) {
-		                                                   
-					"[4]" {  
-                  
-                        $row.EventID = [string]$EventLog.id;
-                        $row.Message = [string]$Eventlog.Message;
-                        $row.Level = "Success";
-		          	    
-						break;
-					} 
-		
-					"[5]"{  
-				
-                    	$row.EventID = [string]$EventLog.id;
-		       			$row.Message = [string]$Eventlog.Message;
-                        $row.Level = "Error"; 
-						break;
-					}
-				
-					"[7]"{  
-				
-                        $row.EventID = [string]$EventLog.id;
-		       		    $row.Message = [string]$Eventlog.Message;
-                        $row.Level = "Warning";
-						break;
-					}
+    $EventLog_error = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="5"; StartTime=(get-date).addDays($days)}} -Credential $cred
+	$EventLog_error|foreach {
+            
+            $row = $table.NewRow();
+            $row.LogName = "Microsof-Windows-Backup"
+            $row.EventID = [string] $EventLog_success.id;
+            $row.Server = $allservers
+            $row.Message = [string]$EventLog_success.Message;
+            $row.Level = "Error";
+            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
+            $table.Rowns.Add($row) 
+        
+        }
 
-				 }
-                $table.Rows.Add($row)
-
-		    }   
+    $EventLog_war = Invoke-Command -Computername $allservers -ScriptBlock { Get-WinEvent -FilterHashtable @{ logname="Microsoft-Windows-Backup"; id="7"; StartTime=(get-date).addDays($days)}} -Credential $cred
+	 $EventLog_war|foreach {
+            
+            $row = $table.NewRow();
+            $row.LogName = "Microsof-Windows-Backup"
+            $row.EventID = [string] $EventLog_success.id;
+            $row.Server = $allservers
+            $row.Message = [string]$EventLog_success.Message;
+            $row.Level = "Warning";
+            $row.TimeCreated = [string]$EventLog_success.TimeCreated;
+            $table.Rowns.Add($row) 
+        
+        }              
+		    
 }  
 
 $log = $table |Select-Object LogName,EventID,Server,Level,Message,TimeCreated |ConvertTo-Html -Fragment -As Table -PreContent "<h4>Report Backup Full - Windows Servers</h4>" | Out-String 
